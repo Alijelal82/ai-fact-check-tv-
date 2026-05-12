@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI Fact Check TV — البث المباشر</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="AI Fact Check TV — قناة الذكاء الاصطناعي">
+<meta property="og:description" content="بث 24/7 لأحدث أخبار AI · Live broadcast of AI news around the clock">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aifactchecktv.online">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Fact Check TV">
+<meta name="twitter:description" content="قناة الذكاء الاصطناعي · 24/7">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%232dd4bf'/><path d='M5 13l4 4L19 7' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-deep:#051624; --bg:#0a2540; --bg-2:#0f2f4d; --bg-3:#143a5c;
+    --teal:#2dd4bf; --teal-bright:#5eead4; --teal-deep:#0d9488;
+    --mint:#4ade80; --mint-bright:#86efac; --cyan:#06b6d4;
+    --white:#ffffff; --off-white:#e0f2fe; --gray:#94a3b8; --gray-dark:#334155;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%; overflow:hidden;}
+  body{
+    background:var(--bg-deep); color:var(--white);
+    font-family:'Cairo',sans-serif; direction:rtl;
+    -webkit-user-select:none; user-select:none;
+  }
+
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background-image:
+      linear-gradient(rgba(45,212,191,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,212,191,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:2;
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(45,212,191,0.6) 0%, transparent 1.5%),
+      radial-gradient(circle at 85% 75%, rgba(74,222,128,0.6) 0%, transparent 1.5%),
+      radial-gradient(circle at 25% 80%, rgba(45,212,191,0.4) 0%, transparent 1.2%);
+    animation:floatDots 20s ease-in-out infinite;
+  }
+  @keyframes floatDots{0%,100%{opacity:0.6;} 50%{opacity:1;}}
+
+  .activation{
+    position:fixed; inset:0; z-index:9999;
+    background:radial-gradient(circle at center, rgba(45,212,191,0.15) 0%, var(--bg-deep) 60%), var(--bg-deep);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:30px; text-align:center;
+    transition:opacity 0.6s, visibility 0.6s;
+  }
+  .activation.hidden{opacity:0; visibility:hidden;}
+
+  .act-logo-wrap{position:relative; width:200px; height:200px; margin-bottom:24px; display:flex; align-items:center; justify-content:center;}
+  .orbit-ring{position:absolute; inset:0; border:1px solid rgba(45,212,191,0.3); border-radius:50%; animation:rotate 30s linear infinite;}
+  .orbit-ring::before, .orbit-ring::after{content:""; position:absolute; width:6px; height:6px; background:var(--teal); border-radius:50%; box-shadow:0 0 12px var(--teal);}
+  .orbit-ring::before{top:-3px; left:50%; transform:translateX(-50%);}
+  .orbit-ring::after{bottom:-3px; left:30%; background:var(--mint); box-shadow:0 0 12px var(--mint);}
+  .orbit-ring-2{position:absolute; inset:14px; border:1px solid rgba(45,212,191,0.15); border-radius:50%; animation:rotate 40s linear infinite reverse;}
+  @keyframes rotate{from{transform:rotate(0);} to{transform:rotate(360deg);}}
+
+  .act-logo{
+    width:110px; height:110px;
+    background:linear-gradient(135deg, var(--mint), var(--teal), var(--cyan));
+    border-radius:24px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.3), 0 0 40px rgba(45,212,191,0.6);
+    animation:logoPulse 3s ease-in-out infinite;
+  }
+  @keyframes logoPulse{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,0.3), 0 0 40px rgba(45,212,191,0.6);} 50%{box-shadow:0 0 0 1px rgba(255,255,255,0.5), 0 0 60px rgba(45,212,191,0.9);}}
+  .act-logo svg{width:60px; height:60px;}
+
+  .act-title{font-family:'Bebas Neue',sans-serif; font-size:42px; letter-spacing:5px; margin-bottom:6px;}
+  .act-title .fact{color:var(--teal-bright);}
+  .act-verified{display:inline-block; border:1px solid var(--teal); color:var(--teal-bright); padding:3px 16px; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:3px; border-radius:14px; margin-bottom:24px;}
+  .act-sub{font-family:'Cairo',sans-serif; font-weight:700; font-size:15px; color:var(--off-white); letter-spacing:1.5px; margin-bottom:28px; opacity:0.85;}
+
+  .act-btn{
+    background:linear-gradient(135deg, var(--mint), var(--teal), var(--cyan));
+    color:var(--bg-deep); border:none;
+    padding:18px 44px;
+    font-family:'Cairo',sans-serif; font-weight:900; font-size:18px;
+    cursor:pointer; border-radius:12px;
+    box-shadow:0 8px 30px rgba(45,212,191,0.5);
+    display:flex; align-items:center; gap:12px;
+    letter-spacing:1px; transition:transform 0.15s;
+  }
+  .act-btn:active{transform:scale(0.96);}
+  .act-btn .icon{font-size:22px;}
+  .act-btn .en{font-family:'Bebas Neue',sans-serif; font-size:14px; opacity:0.75; letter-spacing:2px; display:block;}
+
+  .tv-broadcast{position:fixed; inset:0; display:grid; grid-template-rows: 50px 1fr auto 38px; overflow:hidden; z-index:5;}
+
+  .top-bar{
+    background:linear-gradient(180deg, var(--bg-2), var(--bg));
+    border-bottom:2px solid var(--teal);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 14px;
+    box-shadow:0 4px 20px rgba(45,212,191,0.15);
+  }
+
+  .channel-wrap{display:flex; align-items:center; gap:10px;}
+  .logo-mini{
+    width:34px; height:34px;
+    background:linear-gradient(135deg, var(--mint), var(--teal), var(--cyan));
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 14px rgba(45,212,191,0.5);
+  }
+  .logo-mini svg{width:20px; height:20px;}
+
+  .ch-name{display:flex; flex-direction:column; line-height:1;}
+  .ch-name .en{font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px;}
+  .ch-name .en .fact{color:var(--teal-bright);}
+  .ch-name .ar{font-family:'Cairo',sans-serif; font-size:9px; opacity:0.7; margin-top:2px; color:var(--teal-bright);}
+
+  .live-bg{
+    background:var(--teal); color:var(--bg-deep);
+    padding:4px 12px;
+    font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px;
+    display:flex; align-items:center; gap:5px;
+    border-radius:4px; font-weight:700;
+    box-shadow:0 0 14px rgba(45,212,191,0.4);
+    animation:livePulse 2s infinite;
+  }
+  .live-bg .dot{width:6px; height:6px; background:var(--bg-deep); border-radius:50%; animation:pulse 0.9s infinite;}
+  @keyframes livePulse{50%{box-shadow:0 0 22px var(--teal);}}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.3;}}
+
+  .clk{font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:1.5px; color:var(--teal-bright);}
+
+  .stage{position:relative; overflow:hidden; background:var(--bg-deep);}
+  .news-media{position:absolute; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity 0.8s; transform:scale(1.05);}
+  .news-media.active{opacity:1; animation:kenBurns 14s linear infinite alternate;}
+  @keyframes kenBurns{0%{transform:scale(1.05) translate(0,0);} 100%{transform:scale(1.18) translate(-3%, -2%);}}
+
+  .stage::before{
+    content:""; position:absolute; inset:0; z-index:2;
+    background:linear-gradient(180deg, rgba(5,22,36,0.3) 0%, transparent 25%, transparent 50%, rgba(5,22,36,0.95) 100%);
+    pointer-events:none;
+  }
+  .stage::after{
+    content:""; position:absolute; inset:0; z-index:3;
+    background:repeating-linear-gradient(0deg, rgba(45,212,191,0.02) 0px, rgba(45,212,191,0.02) 1px, transparent 1px, transparent 4px);
+    pointer-events:none;
+  }
+
+  .bug{
+    position:absolute; top:14px; left:14px; z-index:10;
+    display:flex; align-items:center; gap:8px;
+    background:rgba(10,37,64,0.75); backdrop-filter:blur(10px);
+    padding:6px 12px; border-right:3px solid var(--teal); border-radius:4px;
+  }
+  .bug .lg{width:22px; height:22px; background:linear-gradient(135deg, var(--mint), var(--teal), var(--cyan)); border-radius:5px; display:flex; align-items:center; justify-content:center;}
+  .bug .lg svg{width:14px; height:14px;}
+  .bug .txt{font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:1.5px;}
+  .bug .txt .fact{color:var(--teal-bright);}
+  .bug .lv{background:var(--teal); color:var(--bg-deep); padding:1px 6px; font-family:'Bebas Neue',sans-serif; font-size:9px; letter-spacing:1.5px; border-radius:2px; font-weight:700; animation:pulse 1.5s infinite;}
+
+  .anchor-float{
+    position:absolute; bottom:140px; right:14px; z-index:11;
+    width:82px; height:82px; border-radius:50%;
+    border:3px solid var(--teal);
+    box-shadow:0 0 0 3px var(--bg-deep), 0 0 0 4px rgba(45,212,191,0.5), 0 4px 18px rgba(45,212,191,0.4);
+    overflow:hidden;
+    background:linear-gradient(180deg, #1e3a5f 0%, #0a2540 100%);
+  }
+  .anchor-float.speaking{animation:speakGlow 1.2s infinite;}
+  @keyframes speakGlow{
+    0%,100%{box-shadow:0 0 0 3px var(--bg-deep), 0 0 0 4px var(--mint), 0 0 20px rgba(74,222,128,0.6);}
+    50%{box-shadow:0 0 0 3px var(--bg-deep), 0 0 0 4px var(--mint-bright), 0 0 35px rgba(74,222,128,0.9);}
+  }
+
+  .anchor-svg{width:100%; height:100%;}
+  .anchor-svg .face{fill:#d4a574;}
+  .anchor-svg .hair{fill:#1a1a1a;}
+  .anchor-svg .suit{fill:#0a2540;}
+  .anchor-svg .shirt{fill:#ffffff;}
+  .anchor-svg .tie{fill:#2dd4bf;}
+  .anchor-svg .mouth{fill:#3a1a1a; transform-origin:center; transform-box:fill-box;}
+  .anchor-svg .eye{fill:#1a1a1a; transform-origin:center; transform-box:fill-box;}
+  .anchor-svg .glasses{fill:none; stroke:#1a1a1a; stroke-width:1.5;}
+  .anchor-svg .beard{fill:#1a1a1a; opacity:0.6;}
+  .anchor-svg.speaking .mouth{animation:mouthSpeak 0.22s infinite alternate;}
+  .anchor-svg.speaking .eye{animation:blnk 3.5s infinite;}
+  @keyframes mouthSpeak{0%{transform:scaleY(0.4);} 100%{transform:scaleY(1.3);}}
+  @keyframes blnk{0%,92%,100%{transform:scaleY(1);} 96%{transform:scaleY(0.1);}}
+
+  .anchor-name-tag{
+    position:absolute; bottom:230px; right:14px; z-index:12;
+    background:rgba(10,37,64,0.85); backdrop-filter:blur(10px);
+    padding:5px 12px; border-right:3px solid var(--teal); border-radius:4px;
+    font-family:'Cairo',sans-serif; font-weight:700; font-size:12px;
+  }
+  .anchor-name-tag .en{font-family:'Bebas Neue',sans-serif; color:var(--teal-bright); font-size:10px; letter-spacing:1.5px; display:block;}
+
+  .story-overlay{position:absolute; bottom:0; left:0; right:0; z-index:10; padding:18px 18px 22px;}
+  .cat{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--teal); color:var(--bg-deep);
+    padding:5px 12px;
+    font-family:'Cairo',sans-serif; font-weight:700; font-size:11px;
+    letter-spacing:1px; margin-bottom:10px; border-radius:4px;
+    box-shadow:0 4px 14px rgba(45,212,191,0.4);
+  }
+  .cat .en{font-family:'Bebas Neue',sans-serif; opacity:0.7; font-size:10px; letter-spacing:1.5px;}
+
+  .story-overlay h1{font-family:'Cairo',sans-serif; font-weight:900; font-size:24px; line-height:1.3; margin-bottom:4px; text-shadow:2px 2px 12px rgba(0,0,0,0.95);}
+  .story-overlay h2{font-family:'Bebas Neue',sans-serif; font-weight:400; font-size:17px; line-height:1.2; letter-spacing:1.5px; color:var(--teal-bright); text-shadow:1px 1px 8px rgba(0,0,0,0.9); direction:ltr; margin-bottom:10px;}
+  .meta{display:flex; gap:10px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--teal-bright); letter-spacing:1px; direction:ltr;}
+  .meta span{display:flex; align-items:center; gap:4px;}
+  .meta .td{width:5px; height:5px; background:var(--teal); border-radius:50%; animation:pulse 1s infinite; box-shadow:0 0 6px var(--teal);}
+
+  .controls{
+    background:linear-gradient(180deg, var(--bg), var(--bg-deep));
+    border-top:2px solid var(--teal);
+    padding:12px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+
+  .speak-status{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:7px 14px;
+    background:rgba(10,37,64,0.6);
+    border:1px solid var(--gray-dark);
+    border-radius:6px;
+    font-family:'Cairo',sans-serif; font-size:11px;
+    color:var(--gray);
+  }
+  .speak-status.live{border-color:var(--mint); color:var(--mint); background:rgba(74,222,128,0.1);}
+  .speak-status.loading{border-color:var(--teal); color:var(--teal-bright); background:rgba(45,212,191,0.1);}
+  .speak-status .audio-viz{display:flex; gap:2px; align-items:flex-end; height:16px;}
+  .speak-status .audio-viz .bar{width:3px; height:2px; background:var(--mint); transition:height 0.1s; border-radius:1px;}
+
+  .btn-row{display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:6px;}
+  .ctrl-btn{
+    background:rgba(10,37,64,0.6); color:var(--white);
+    border:1px solid var(--gray-dark);
+    padding:11px 8px;
+    font-family:'Cairo',sans-serif; font-weight:700; font-size:13px;
+    cursor:pointer; border-radius:6px;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    transition:all 0.15s;
+  }
+  .ctrl-btn:active{transform:scale(0.95);}
+  .ctrl-btn.primary{
+    background:linear-gradient(135deg, var(--mint), var(--teal), var(--cyan));
+    color:var(--bg-deep); border-color:var(--teal-bright);
+    box-shadow:0 4px 16px rgba(45,212,191,0.5);
+    font-size:14px; font-weight:900;
+  }
+  .ctrl-btn.primary.playing{background:linear-gradient(135deg, #fbbf24, #f59e0b); border-color:#fbbf24;}
+  .ctrl-btn .icon{font-size:15px;}
+
+  .ticker{
+    background:linear-gradient(90deg, var(--teal-deep), var(--teal), var(--teal-deep));
+    color:var(--bg-deep);
+    display:flex; align-items:center; height:38px;
+    overflow:hidden;
+    border-top:1px solid var(--mint-bright);
+  }
+  .ticker-label{
+    background:var(--bg-deep); color:var(--teal);
+    padding:0 14px; height:100%;
+    display:flex; align-items:center; gap:6px;
+    font-family:'Cairo',sans-serif; font-weight:700; font-size:13px;
+    letter-spacing:1.5px; border-left:3px solid var(--teal);
+    z-index:2; flex-shrink:0;
+  }
+  .ticker-label .dot{width:7px; height:7px; background:var(--teal); border-radius:50%; animation:pulse 0.9s infinite; box-shadow:0 0 8px var(--teal);}
+  .ticker-track{display:flex; white-space:nowrap; animation:scroll 80s linear infinite; font-family:'Cairo',sans-serif; font-weight:700; font-size:13px;}
+  .ticker-track .item{padding:0 24px; display:inline-flex; align-items:center; gap:8px;}
+  .ticker-track .en{opacity:0.75; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:1.5px;}
+  .ticker-track .sep{color:rgba(5,22,36,0.4); font-size:18px;}
+  @keyframes scroll{0%{transform:translateX(0);} 100%{transform:translateX(50%);}}
+
+  .progress-bar{position:absolute; bottom:0; left:0; right:0; height:3px; background:rgba(0,0,0,0.4); z-index:15;}
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--mint), var(--teal), var(--cyan)); width:0%; transition:width 0.3s linear; box-shadow:0 0 8px var(--teal);}
+
+  .toast{
+    position:fixed; top:65px; left:50%; transform:translateX(-50%);
+    background:rgba(10,37,64,0.95); backdrop-filter:blur(10px);
+    border:1px solid var(--teal); border-right:4px solid var(--teal);
+    color:var(--white); padding:12px 20px;
+    font-family:'Cairo',sans-serif; font-size:13px;
+    z-index:8000; max-width:90%;
+    opacity:0; transition:opacity 0.3s;
+    pointer-events:none; border-radius:6px;
+  }
+  .toast.show{opacity:1;}
+  .toast.err{border-color:#f87171; border-right-color:#f87171;}
+  .toast.ok{border-color:var(--mint); border-right-color:var(--mint);}
+</style>
+</head>
+<body>
+
+<div class="activation" id="activation">
+  <div class="act-logo-wrap">
+    <div class="orbit-ring"></div>
+    <div class="orbit-ring-2"></div>
+    <div class="act-logo">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M5 13l4 4L19 7" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+  <div class="act-title">AI <span class="fact">FACT</span> CHECK TV</div>
+  <div class="act-verified">◆ VERIFIED ◆</div>
+  <div class="act-sub">قناة الذكاء الاصطناعي · 24/7</div>
+
+  <button class="act-btn" id="activate-btn">
+    <span class="icon">▶</span>
+    <span>ابدأ البث المباشر<span class="en">START BROADCAST</span></span>
+  </button>
+</div>
+
+<div class="tv-broadcast">
+  <div class="top-bar">
+    <div class="channel-wrap">
+      <div class="logo-mini">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="ch-name">
+        <span class="en">AI <span class="fact">FACT</span> CHECK</span>
+        <span class="ar">قناة الذكاء الاصطناعي</span>
+      </div>
+    </div>
+    <div class="live-bg"><span class="dot"></span><span>LIVE</span></div>
+    <div class="clk" id="clock">19:26:32</div>
+  </div>
+
+  <div class="stage">
+    <div class="news-media active" id="media-1"></div>
+    <div class="news-media" id="media-2"></div>
+
+    <div class="bug">
+      <div class="lg"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="txt">AI <span class="fact">FACT</span></div>
+      <div class="lv">LIVE</div>
+    </div>
+
+    <div class="anchor-name-tag">علاء الذكاء<span class="en">ALAA · AI ANCHOR</span></div>
+
+    <div class="anchor-float" id="anchor-float">
+      <svg class="anchor-svg" id="anchor-svg" viewBox="0 0 140 140">
+        <defs><radialGradient id="bgGrad" cx="50%" cy="40%"><stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#0a2540"/></radialGradient></defs>
+        <rect width="140" height="140" fill="url(#bgGrad)"/>
+        <path class="suit" d="M 10 140 L 10 120 Q 30 105, 50 100 L 90 100 Q 110 105, 130 120 L 130 140 Z"/>
+        <path class="shirt" d="M 55 100 L 70 115 L 85 100 L 85 110 L 70 122 L 55 110 Z"/>
+        <path class="tie" d="M 67 115 L 73 115 L 75 130 L 70 140 L 65 130 Z"/>
+        <rect class="face" x="62" y="85" width="16" height="20"/>
+        <ellipse class="face" cx="70" cy="60" rx="26" ry="32"/>
+        <path class="hair" d="M 44 56 Q 45 30, 70 28 Q 95 30, 96 56 Q 96 48, 90 44 Q 70 38, 50 44 Q 44 48, 44 56 Z"/>
+        <path class="hair" d="M 44 56 Q 42 70, 46 78 L 48 72 Q 47 65, 48 58 Z"/>
+        <path class="hair" d="M 96 56 Q 98 70, 94 78 L 92 72 Q 93 65, 92 58 Z"/>
+        <path class="hair" d="M 56 54 Q 60 51, 65 53 L 65 55 Q 60 53, 56 56 Z"/>
+        <path class="hair" d="M 75 53 Q 80 51, 84 54 L 84 56 Q 80 53, 75 55 Z"/>
+        <ellipse class="eye" cx="60" cy="61" rx="2" ry="2.5"/>
+        <ellipse class="eye" cx="80" cy="61" rx="2" ry="2.5"/>
+        <circle class="glasses" cx="60" cy="61" r="6"/>
+        <circle class="glasses" cx="80" cy="61" r="6"/>
+        <line class="glasses" x1="66" y1="61" x2="74" y2="61"/>
+        <path class="beard" d="M 60 75 Q 70 77, 80 75 Q 82 78, 80 80 Q 70 79, 60 80 Q 58 78, 60 75 Z"/>
+        <path class="beard" d="M 58 78 Q 70 88, 82 78 Q 84 86, 70 92 Q 56 86, 58 78 Z"/>
+        <ellipse class="mouth" cx="70" cy="80" rx="4" ry="1.5"/>
+        <ellipse class="face" cx="45" cy="62" rx="3" ry="5"/>
+        <ellipse class="face" cx="95" cy="62" rx="3" ry="5"/>
+      </svg>
+    </div>
+
+    <div class="story-overlay">
+      <div class="cat" id="story-cat">● AI <span class="en">/ AI NEWS</span></div>
+      <h1 id="story-title">جارٍ التحميل...</h1>
+      <h2 id="story-title-en">Loading...</h2>
+      <div class="meta">
+        <span><span class="td"></span><span id="story-src">AI FACT CHECK</span></span>
+        <span id="story-time">19:26 UTC</span>
+        <span id="story-id">STORY · 001/10</span>
+      </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="controls">
+    <div class="speak-status" id="speak-status">
+      <span id="speak-status-text">جاهز · STANDBY</span>
+      <div class="audio-viz">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="ctrl-btn primary" id="btn-play"><span class="icon">▶</span><span>بدء البث</span></button>
+      <button class="ctrl-btn" id="btn-prev"><span class="icon">⏮</span></button>
+      <button class="ctrl-btn" id="btn-next"><span class="icon">⏭</span></button>
+      <button class="ctrl-btn" id="btn-fs"><span class="icon">⛶</span></button>
+    </div>
+  </div>
+
+  <div class="ticker">
+    <div class="ticker-label"><span class="dot"></span><span>عاجل</span></div>
+    <div class="ticker-track" id="ticker-track"></div>
+  </div>
+</div>
+
+<audio id="audio-player" preload="auto"></audio>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ⚙️ Backend Endpoint - يشير لـ Serverless Function على Vercel
+const TTS_ENDPOINT = '/api/tts';
+
+const newsStories = [
+  {cat:'AI · ذكاء اصطناعي', catEn:'AI BREAKING', title:'أنثروبيك تطلق "غلاس وينغ" لاكتشاف الثغرات الأمنية', titleEn:'Anthropic Launches Project Glasswing', script:'في خبر هام من عالم الذكاء الاصطناعي. أعلنت شركة أنثروبيك عن إطلاق مشروع غلاس وينغ. هذا المشروع يتيح لشركات مختارة مثل أمازون وآبل وغوغل الوصول إلى نموذج كلود ميثوس المتقدم. الهدف اكتشاف الثغرات الأمنية في البرمجيات قبل أن يستغلها المهاجمون.', source:'CNBC', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&auto=format'},
+  {cat:'سباق · RACE', catEn:'BREAKING', title:'سيرغي برين يشكّل فريق Strike Team للحاق بكلود', titleEn:'Google Forms Strike Team to Match Claude', script:'في تطور مثير في سباق الذكاء الاصطناعي. كشف تقرير لمجلة The Information أن غوغل ديب مايند شكّل فريقاً خاصاً للحاق بقدرات أنثروبيك. مؤسس غوغل سيرغي برين أرسل مذكرة داخلية يؤكد فيها أن كلود يتفوق على غوغل في الترميز.', source:'The Information', img:'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1600&auto=format'},
+  {cat:'اقتصاد · ECONOMY', catEn:'BUSINESS', title:'OpenAI تتجاوز 25 مليار دولار إيرادات سنوية', titleEn:'OpenAI Crosses 25 Billion Dollar Revenue', script:'في خبر اقتصادي مهم. تجاوزت إيرادات أوبن إيه آي خمسة وعشرين مليار دولار سنوياً. وتستعد الشركة لطرح عام أولي قبل نهاية عام ألفين وستة وعشرين.', source:'Reuters', img:'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1600&auto=format'},
+  {cat:'تقنية · TECH', catEn:'NVIDIA', title:'NVIDIA تسجل قيمة سوقية 3.4 تريليون دولار', titleEn:'NVIDIA Hits 3.4 Trillion Market Cap', script:'وصلت شركة إنفيديا إلى قيمة سوقية تاريخية. تتجاوز ثلاثة فاصلة أربعة تريليون دولار. الارتفاع مدفوع بالطلب الهائل على معالجات إتش مئة الرسومية.', source:'Bloomberg', img:'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=1600&auto=format'},
+  {cat:'AI', catEn:'MODEL LAUNCH', title:'DeepSeek V4 يصدر بنافذة سياق مليون توكن', titleEn:'DeepSeek V4 Launches with 1M Token Context', script:'في إنجاز جديد للذكاء الاصطناعي مفتوح المصدر. أصدرت شركة ديب سيك الصينية نموذجها الرابع. النموذج الجديد يتميز بنافذة سياق تبلغ مليون رمز.', source:'The Information', img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1600&auto=format'},
+  {cat:'فن · ART', catEn:'EXHIBITION', title:'متحف بروكلين يفتتح معرض إيريس فان هيربن', titleEn:'Brooklyn Museum Opens Iris van Herpen', script:'في عالم الفن والأزياء. يستضيف متحف بروكلين في نيويورك المعرض الأول لمصممة الأزياء الهولندية إيريس فان هيربن في أمريكا الشمالية.', source:'Designboom', img:'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&auto=format'},
+  {cat:'سياسة · POLITICS', catEn:'REGULATION', title:'إدارة ترامب توسّع برنامج فحص نماذج AI', titleEn:'Trump Admin Expands AI Pre-Deployment Testing', script:'في خبر تنظيمي مهم. وقّع مركز معايير الذكاء الاصطناعي الأمريكي اتفاقيات مع غوغل ديب مايند وميكروسوفت وإكس إيه آي.', source:'CNBC', img:'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1600&auto=format'},
+  {cat:'AI · META', catEn:'META AI', title:'ميتا تكشف Muse Spark من Superintelligence Labs', titleEn:'Meta Unveils Muse Spark Flagship Model', script:'كشفت شركة ميتا عن نموذجها الجديد ميوز سبارك. أول نموذج لغوي رئيسي من مختبرات الذكاء الفائق الجديدة. بقيادة ألكسندر وانغ.', source:'CNBC', img:'https://images.unsplash.com/photo-1633613286848-e6f43bbafb8d?w=1600&auto=format'},
+  {cat:'تقنية · APPLE', catEn:'APPLE', title:'كلود يحتل المركز الأول في متجر آبل الأمريكي', titleEn:'Claude Hits Number One on US App Store', script:'في خبر تقني لافت. احتل تطبيق كلود من أنثروبيك المركز الأول في متجر تطبيقات آبل في الولايات المتحدة. لأول مرة في تاريخه.', source:'Bloomberg', img:'https://images.unsplash.com/photo-1551434678-e076c223a692?w=1600&auto=format'},
+  {cat:'بحوث · RESEARCH', catEn:'SCIENCE', title:'AlphaEvolve يكتشف هياكل رياضية جديدة', titleEn:'AlphaEvolve Discovers Mathematical Structures', script:'في إنجاز علمي بارز. نظام ألفا إيفولف من غوغل ديب مايند. يدمج نماذج اللغة مع الخوارزميات التطورية.', source:'Google DeepMind', img:'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1600&auto=format'},
+];
+
+const state = {currentIdx:0, isPlaying:false, mediaToggle:false};
+const audioPlayer = document.getElementById('audio-player');
+
+function showToast(msg, type, dur){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  setTimeout(()=>{ t.classList.remove('show'); }, dur || 3000);
+}
+
+function tickClock(){
+  const d = new Date();
+  document.getElementById('clock').textContent = `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}:${String(d.getUTCSeconds()).padStart(2,'0')}`;
+}
+setInterval(tickClock, 1000); tickClock();
+
+const tickerItems = [
+  {ar:'أنثروبيك تطلق Glasswing لأمن البرمجيات', en:'ANTHROPIC LAUNCHES GLASSWING'},
+  {ar:'NVIDIA تتخطى 3.4 تريليون دولار', en:'NVIDIA CROSSES 3.4 TRILLION'},
+  {ar:'OpenAI نحو الاكتتاب العام', en:'OPENAI IPO TALKS'},
+  {ar:'برين: كلود يتفوق علينا في الترميز', en:'CLAUDE BEATS GOOGLE AT CODING'},
+  {ar:'DeepSeek V4 بنافذة مليون توكن', en:'DEEPSEEK V4 LAUNCHES'},
+  {ar:'كلود الأول على متجر آبل', en:'CLAUDE HITS NO 1 ON APP STORE'},
+];
+const tickerHtml = tickerItems.map(t => `<span class="item">◆ ${t.ar} <span class="en">/ ${t.en}</span></span><span class="sep">|</span>`).join('');
+document.getElementById('ticker-track').innerHTML = tickerHtml + tickerHtml;
+
+function displayStory(idx){
+  state.currentIdx = idx;
+  const s = newsStories[idx];
+  const inLayer = state.mediaToggle ? document.getElementById('media-1') : document.getElementById('media-2');
+  const outLayer = state.mediaToggle ? document.getElementById('media-2') : document.getElementById('media-1');
+  inLayer.style.backgroundImage = `url('${s.img}')`;
+  inLayer.classList.add('active');
+  outLayer.classList.remove('active');
+  state.mediaToggle = !state.mediaToggle;
+  document.getElementById('story-cat').innerHTML = `● ${s.cat} <span class="en">/ ${s.catEn}</span>`;
+  document.getElementById('story-title').textContent = s.title;
+  document.getElementById('story-title-en').textContent = s.titleEn;
+  document.getElementById('story-src').textContent = s.source;
+  const d = new Date();
+  document.getElementById('story-time').textContent = `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')} UTC`;
+  document.getElementById('story-id').textContent = `STORY · ${String(idx+1).padStart(3,'0')}/${String(newsStories.length).padStart(3,'0')}`;
+  document.getElementById('prog-fill').style.width = '0%';
+}
+
+async function fetchTTS(text){
+  const response = await fetch(TTS_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+
+  if (!response.ok) {
+    let errMsg = `HTTP ${response.status}`;
+    try {
+      const err = await response.json();
+      errMsg = err.error || errMsg;
+    } catch(e) {}
+    throw new Error(errMsg);
+  }
+
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
+async function speak(text, onEnd){
+  document.getElementById('speak-status').classList.add('loading');
+  document.getElementById('speak-status').classList.remove('live');
+  document.getElementById('speak-status-text').textContent = '⏳ جارٍ توليد الصوت...';
+
+  try{
+    const audioUrl = await fetchTTS(text);
+
+    document.getElementById('speak-status').classList.remove('loading');
+    document.getElementById('speak-status').classList.add('live');
+    document.getElementById('speak-status-text').textContent = 'يتحدث الآن · ON AIR';
+
+    audioPlayer.src = audioUrl;
+
+    audioPlayer.onplay = ()=>{
+      document.getElementById('anchor-svg').classList.add('speaking');
+      document.getElementById('anchor-float').classList.add('speaking');
+      startAudioViz();
+      startProgress((audioPlayer.duration || 15) * 1000);
+    };
+
+    audioPlayer.onended = ()=>{
+      document.getElementById('anchor-svg').classList.remove('speaking');
+      document.getElementById('anchor-float').classList.remove('speaking');
+      document.getElementById('speak-status').classList.remove('live');
+      document.getElementById('speak-status-text').textContent = 'جاهز · STANDBY';
+      stopAudioViz();
+      stopProgress();
+      if(onEnd) onEnd();
+    };
+
+    audioPlayer.onerror = ()=>{
+      showToast('خطأ في تشغيل الصوت', 'err');
+      if(onEnd) onEnd();
+    };
+
+    await audioPlayer.play();
+  } catch(e){
+    console.error('TTS Error:', e);
+    document.getElementById('speak-status').classList.remove('loading');
+    document.getElementById('speak-status-text').textContent = 'جاهز · STANDBY';
+    showToast('خطأ: ' + e.message, 'err', 4000);
+    if(onEnd) setTimeout(onEnd, 2000);
+  }
+}
+
+let vizInterval = null;
+function startAudioViz(){
+  const bars = document.querySelectorAll('.audio-viz .bar');
+  vizInterval = setInterval(()=>{
+    bars.forEach(b => { b.style.height = (3 + Math.random()*14) + 'px'; });
+  }, 100);
+}
+function stopAudioViz(){
+  if(vizInterval) clearInterval(vizInterval);
+  document.querySelectorAll('.audio-viz .bar').forEach(b => b.style.height = '2px');
+}
+
+let progStart = 0, progInterval = null;
+function startProgress(duration){
+  progStart = Date.now();
+  if(progInterval) clearInterval(progInterval);
+  progInterval = setInterval(()=>{
+    const elapsed = Date.now() - progStart;
+    const pct = Math.min(99, (elapsed/duration)*100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+  }, 100);
+}
+function stopProgress(){
+  if(progInterval) clearInterval(progInterval);
+  document.getElementById('prog-fill').style.width = '100%';
+}
+
+async function playStory(idx){
+  if(!state.isPlaying) return;
+  displayStory(idx);
+  const s = newsStories[idx];
+  const isFirst = idx === 0;
+  const intro = isFirst ? 'مرحباً بكم في نشرة AI Fact Check المسائية. أنا علاء. ومعنا أهم أخبار الذكاء الاصطناعي. ' : '';
+  await speak(intro + s.script, ()=>{
+    if(!state.isPlaying) return;
+    const next = (idx + 1) % newsStories.length;
+    setTimeout(()=>{ if(state.isPlaying) playStory(next); }, 1500);
+  });
+}
+
+function startBroadcast(){
+  state.isPlaying = true;
+  const btn = document.getElementById('btn-play');
+  btn.classList.add('playing');
+  btn.innerHTML = '<span class="icon">⏹</span><span>إيقاف</span>';
+  showToast('🔴 بدأ البث المباشر', 'ok', 2000);
+  playStory(state.currentIdx);
+}
+
+function stopBroadcast(){
+  state.isPlaying = false;
+  audioPlayer.pause();
+  audioPlayer.currentTime = 0;
+  stopAudioViz();
+  stopProgress();
+  const btn = document.getElementById('btn-play');
+  btn.classList.remove('playing');
+  btn.innerHTML = '<span class="icon">▶</span><span>بدء البث</span>';
+  document.getElementById('speak-status-text').textContent = 'جاهز · STANDBY';
+  document.getElementById('speak-status').classList.remove('live');
+  document.getElementById('speak-status').classList.remove('loading');
+}
+
+let isActivated = false;
+document.getElementById('activate-btn').addEventListener('click', ()=>{
+  isActivated = true;
+  document.getElementById('activation').classList.add('hidden');
+  setTimeout(()=>{ startBroadcast(); }, 400);
+});
+
+document.getElementById('btn-play').addEventListener('click', ()=>{
+  if(!isActivated){ document.getElementById('activate-btn').click(); return; }
+  if(state.isPlaying) stopBroadcast();
+  else startBroadcast();
+});
+document.getElementById('btn-next').addEventListener('click', ()=>{
+  audioPlayer.pause();
+  const next = (state.currentIdx + 1) % newsStories.length;
+  if(state.isPlaying) playStory(next);
+  else displayStory(next);
+});
+document.getElementById('btn-prev').addEventListener('click', ()=>{
+  audioPlayer.pause();
+  const prev = (state.currentIdx - 1 + newsStories.length) % newsStories.length;
+  if(state.isPlaying) playStory(prev);
+  else displayStory(prev);
+});
+document.getElementById('btn-fs').addEventListener('click', ()=>{
+  const el = document.documentElement;
+  if(!document.fullscreenElement){
+    if(el.requestFullscreen) el.requestFullscreen();
+    else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  } else {
+    if(document.exitFullscreen) document.exitFullscreen();
+    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
+});
+
+displayStory(0);
+</script>
+</body>
+</html>
