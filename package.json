@@ -1,0 +1,9 @@
+{
+  "name": "ai-fact-check-tv",
+  "version": "1.0.0",
+  "description": "AI Fact Check TV - Live AI News Broadcast",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  }
+}
