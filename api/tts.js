@@ -1,87 +1,71 @@
+// Vercel Serverless Function: Text-to-Speech via ElevenLabs
+// Returns MP3 audio for the given Arabic text using anchor "Alaa"
+//
+// Env var required: ELEVENLABS_API_KEY
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({
-      error: 'ELEVENLABS_API_KEY not configured in Vercel'
-    });
+    return res.status(500).json({ error: 'ELEVENLABS_API_KEY not configured' });
   }
 
-  const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'drMurExmkWVIH5nW8snR';
-  const MODEL_ID = 'eleven_multilingual_v2';
-
-  const { text } = req.body || {};
-
-  if (!text || typeof text !== 'string' || !text.trim()) {
-    return res.status(400).json({ error: 'No text provided' });
+  let text = '';
+  try {
+    text = (req.body && req.body.text) || '';
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid JSON body' });
   }
 
-  if (text.length > 2000) {
-    return res.status(400).json({ error: 'Text too long (max 2000 chars)' });
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ error: 'Missing text' });
   }
+
+  // Voice ID: anchor "Alaa" (Arabic)
+  const VOICE_ID = 'drMurExmkWVIH5nW8snR';
 
   try {
-    const url = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`;
+    const elResp = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': apiKey,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg'
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            // Higher stability = slower, calmer, more news-anchor-like
+            stability: 0.75,
+            similarity_boost: 0.80,
+            // Lower style = less emotional variation = more measured reading pace
+            style: 0.15,
+            use_speaker_boost: true
+          }
+        })
+      }
+    );
 
-    const elevenResponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'xi-api-key': apiKey,
-        'Content-Type': 'application/json',
-        'Accept': 'audio/mpeg'
-      },
-      body: JSON.stringify({
-        text: text,
-        model_id: MODEL_ID,
-        voice_settings: {
-          stability: 0.55,
-          similarity_boost: 0.75,
-          style: 0.4,
-          use_speaker_boost: true
-        }
-      })
-    });
-
-    if (!elevenResponse.ok) {
-      const errorText = await elevenResponse.text();
-      let errorMsg = `ElevenLabs HTTP ${elevenResponse.status}`;
-
-      try {
-        const errData = JSON.parse(errorText);
-        if (errData.detail?.message) {
-          errorMsg = errData.detail.message;
-        }
-      } catch (e) {}
-
-      if (elevenResponse.status === 401) errorMsg = 'Invalid API Key';
-      else if (elevenResponse.status === 429) errorMsg = 'Rate limit exceeded';
-
-      return res.status(elevenResponse.status).json({ error: errorMsg });
+    if (!elResp.ok) {
+      const errText = await elResp.text();
+      return res
+        .status(elResp.status)
+        .json({ error: `TTS Error: HTTP ${elResp.status}`, detail: errText.slice(0, 200) });
     }
 
-    const audioBuffer = Buffer.from(await elevenResponse.arrayBuffer());
+    const arrayBuffer = await elResp.arrayBuffer();
+    const buf = Buffer.from(arrayBuffer);
 
     res.setHeader('Content-Type', 'audio/mpeg');
-    res.setHeader('Content-Length', audioBuffer.length);
-    res.setHeader('Cache-Control', 'public, max-age=2592000');
-
-    return res.status(200).send(audioBuffer);
-
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).send(buf);
   } catch (err) {
-    console.error('TTS Error:', err);
-    return res.status(500).json({
-      error: 'Connection error: ' + (err.message || 'unknown')
-    });
+    return res.status(500).json({ error: 'TTS Error: ' + (err.message || 'unknown') });
   }
 }
