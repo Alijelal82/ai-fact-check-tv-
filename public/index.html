@@ -593,6 +593,9 @@
 </div>
 
 <audio id="audio-player" preload="auto"></audio>
+<audio id="intro-music" preload="auto" crossorigin="anonymous">
+  <source src="https://cdn.pixabay.com/audio/2022/03/24/audio_55cfd6cb14.mp3" type="audio/mpeg">
+</audio>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -727,8 +730,20 @@ const newsStories = [
   }
 ];
 
-const broadcastIntro = 'مرحباً بكم في نشرة AI Fact Check. أنا علاء. إليكم أبرز عناوين هذه الساعة.';
-const transitionToDetails = 'والآن نبدأ بالتفاصيل الكاملة...';
+// ═══════════════════════════════════════════════════════════
+// BULLETIN TEXTS (with natural pauses for slower, clearer reading)
+// ═══════════════════════════════════════════════════════════
+function getCurrentHourArabic(){
+  const h = new Date().getHours();
+  const hours12 = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+  const period = h < 12 ? 'صباحاً' : (h < 18 ? 'ظهراً' : 'مساءً');
+  return `${hours12} ${period}`;
+}
+const broadcastIntro = '. مرحباً بكم. في نشرة AI Fact Check. أنا علاء الذكاء. إليكم. أبرز عناوين. هذه الساعة. ';
+const transitionToDetails = '. والآن. نبدأ بالتفاصيل الكاملة. ';
+function getClosingScript(){
+  return `. والآن. انتهت نشرة الساعة ${getCurrentHourArabic()}. نشكركم على المتابعة. ونترككم في رعاية الله. `;
+}
 
 // ═══════════════════════════════════════════════════════════
 // STATE & DOM REFS
@@ -950,6 +965,45 @@ function setMode(mode){
   }
 }
 
+async function playIntroMusic(){
+  return new Promise((resolve)=>{
+    const music = document.getElementById('intro-music');
+    if(!music){ resolve(); return; }
+    music.volume = 0.6;
+    music.currentTime = 0;
+    const onEnd = ()=>{ music.removeEventListener('ended', onEnd); resolve(); };
+    music.addEventListener('ended', onEnd);
+    // Play 8 seconds of intro music then fade out
+    setTimeout(()=>{
+      // Fade out over 1 second
+      const fadeStart = music.volume;
+      const fadeSteps = 20;
+      let step = 0;
+      const fadeInterval = setInterval(()=>{
+        step++;
+        music.volume = Math.max(0, fadeStart * (1 - step/fadeSteps));
+        if(step >= fadeSteps){
+          clearInterval(fadeInterval);
+          music.pause();
+          music.removeEventListener('ended', onEnd);
+          resolve();
+        }
+      }, 50);
+    }, 8000);
+    music.play().catch(()=>{
+      // If music fails (e.g. blocked), continue without it
+      resolve();
+    });
+  });
+}
+
+function minutesUntilNextHour(){
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(now.getHours() + 1, 0, 0, 0);
+  return Math.max(0, next.getTime() - now.getTime());
+}
+
 async function startBroadcast(){
   state.isPlaying = true;
   const btn = document.getElementById('btn-play');
@@ -960,6 +1014,10 @@ async function startBroadcast(){
   // Step 1: Intro
   setMode('intro');
   displayHeadline(0); // Show first headline as backdrop during intro
+  
+  // Play intro music for ~8 seconds before anchor speaks
+  await playIntroMusic();
+  if(!state.isPlaying) return;
   
   await speak(broadcastIntro, ()=>{
     if(!state.isPlaying) return;
@@ -998,9 +1056,19 @@ function playStoryDetails(idx){
   if(!state.isPlaying) return;
   
   if(idx >= newsStories.length){
-    // Loop back to start
-    showToast('🔁 إعادة البث من البداية', 'ok', 2000);
-    setTimeout(()=>{ if(state.isPlaying) startBroadcast(); }, 2000);
+    // Closing: anchor says farewell, then wait until next hour
+    setMode('intro');
+    speak(getClosingScript(), ()=>{
+      if(!state.isPlaying) return;
+      const waitMs = minutesUntilNextHour();
+      const waitMin = Math.round(waitMs / 60000);
+      showToast(`⏰ النشرة القادمة بعد ${waitMin} دقيقة`, 'ok', 4000);
+      setMode('idle');
+      // Wait until top of next hour, then restart
+      setTimeout(()=>{
+        if(state.isPlaying) startBroadcast();
+      }, waitMs);
+    });
     return;
   }
   
