@@ -41,11 +41,11 @@ export default async function handler(req, res) {
           text: text,
           model_id: 'eleven_multilingual_v2',
           voice_settings: {
-            // Higher stability = slower, calmer, more news-anchor-like
-            stability: 0.75,
-            similarity_boost: 0.80,
-            // Lower style = less emotional variation = more measured reading pace
-            style: 0.15,
+            // Lower stability = more dynamic, faster delivery
+            stability: 0.40,
+            similarity_boost: 0.75,
+            // Higher style = more energetic, faster pace
+            style: 0.55,
             use_speaker_boost: true
           }
         })
