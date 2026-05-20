@@ -739,10 +739,10 @@ function getCurrentHourArabic(){
   const period = h < 12 ? 'صباحاً' : (h < 18 ? 'ظهراً' : 'مساءً');
   return `${hours12} ${period}`;
 }
-const broadcastIntro = '. مرحباً بكم. في نشرة AI Fact Check. أنا علاء الذكاء. إليكم. أبرز عناوين. هذه الساعة. ';
-const transitionToDetails = '. والآن. نبدأ بالتفاصيل الكاملة. ';
+const broadcastIntro = 'مرحباً بكم في نشرة AI Fact Check، أنا علاء، إليكم أبرز عناوين هذه الساعة';
+const transitionToDetails = 'والآن نبدأ بالتفاصيل الكاملة';
 function getClosingScript(){
-  return `. والآن. انتهت نشرة الساعة ${getCurrentHourArabic()}. نشكركم على المتابعة. ونترككم في رعاية الله. `;
+  return `والآن انتهت نشرة الساعة ${getCurrentHourArabic()}، نشكركم على المتابعة، ونترككم في رعاية الله`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -967,33 +967,58 @@ function setMode(mode){
 
 async function playIntroMusic(){
   return new Promise((resolve)=>{
-    const music = document.getElementById('intro-music');
-    if(!music){ resolve(); return; }
-    music.volume = 0.6;
-    music.currentTime = 0;
-    const onEnd = ()=>{ music.removeEventListener('ended', onEnd); resolve(); };
-    music.addEventListener('ended', onEnd);
-    // Play 8 seconds of intro music then fade out
-    setTimeout(()=>{
-      // Fade out over 1 second
-      const fadeStart = music.volume;
-      const fadeSteps = 20;
-      let step = 0;
-      const fadeInterval = setInterval(()=>{
-        step++;
-        music.volume = Math.max(0, fadeStart * (1 - step/fadeSteps));
-        if(step >= fadeSteps){
-          clearInterval(fadeInterval);
-          music.pause();
-          music.removeEventListener('ended', onEnd);
-          resolve();
-        }
-      }, 50);
-    }, 8000);
-    music.play().catch(()=>{
-      // If music fails (e.g. blocked), continue without it
-      resolve();
-    });
+    let done = false;
+    const finish = ()=>{ if(done) return; done = true; resolve(); };
+    
+    try {
+      const music = document.getElementById('intro-music');
+      if(!music){ finish(); return; }
+      
+      // Safety: always resolve after 9 seconds maximum
+      const safetyTimer = setTimeout(finish, 9000);
+      
+      music.volume = 0.6;
+      music.currentTime = 0;
+      
+      const playPromise = music.play();
+      
+      if(playPromise && playPromise.then){
+        playPromise.then(()=>{
+          // Music started successfully - schedule fade-out after 7s
+          setTimeout(()=>{
+            try {
+              const fadeStart = music.volume;
+              const fadeSteps = 20;
+              let step = 0;
+              const fadeInterval = setInterval(()=>{
+                step++;
+                try { music.volume = Math.max(0, fadeStart * (1 - step/fadeSteps)); } catch(e){}
+                if(step >= fadeSteps){
+                  clearInterval(fadeInterval);
+                  try { music.pause(); } catch(e){}
+                  clearTimeout(safetyTimer);
+                  finish();
+                }
+              }, 50);
+            } catch(e) {
+              clearTimeout(safetyTimer);
+              finish();
+            }
+          }, 7000);
+        }).catch((err)=>{
+          // Autoplay blocked or other error - skip music entirely
+          console.warn('Intro music skipped:', err && err.message);
+          clearTimeout(safetyTimer);
+          finish();
+        });
+      } else {
+        // Browser too old or play() returned nothing - skip music
+        clearTimeout(safetyTimer);
+        finish();
+      }
+    } catch(e) {
+      finish();
+    }
   });
 }
 
