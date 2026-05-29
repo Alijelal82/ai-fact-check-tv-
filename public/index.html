@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<!-- v2 -->
-<html
 <html lang="ar" dir="rtl">
 <head>
 <!-- Last auto-update: pending first run -->
@@ -741,8 +739,8 @@ function getCurrentHourArabic(){
   const period = h < 12 ? 'صباحاً' : (h < 18 ? 'ظهراً' : 'مساءً');
   return `${hours12} ${period}`;
 }
-const broadcastIntro = 'مرحباً بكم في نشرة AI Fact Check، أنا علاء، إليكم أبرز عناوين هذه الساعة';
-const transitionToDetails = 'والآن نبدأ بالتفاصيل الكاملة';
+const broadcastIntro = 'مرحباً بكم في نشرة الذكاء الاصطناعي من AI Fact Check. أنا علاء. إليكم أبرز العناوين.';
+const transitionToDetails = 'والآن إلى التفاصيل.';
 function getClosingScript(){
   return `إلى هنا تنتهي نشرتنا. شكراً لمتابعتكم.`;
 }
@@ -968,57 +966,68 @@ function setMode(mode){
 }
 
 async function playIntroMusic(){
+  // Generate a short news-style intro jingle using Web Audio API.
+  // This works on the headless server (no external file / no internet needed).
   return new Promise((resolve)=>{
     let done = false;
     const finish = ()=>{ if(done) return; done = true; resolve(); };
-    
+    // Safety: always resolve after 5 seconds maximum
+    const safety = setTimeout(finish, 5000);
     try {
-      const music = document.getElementById('intro-music');
-      if(!music){ finish(); return; }
-      
-      // Safety: always resolve after 9 seconds maximum
-      const safetyTimer = setTimeout(finish, 9000);
-      
-      music.volume = 0.6;
-      music.currentTime = 0;
-      
-      const playPromise = music.play();
-      
-      if(playPromise && playPromise.then){
-        playPromise.then(()=>{
-          // Music started successfully - schedule fade-out after 7s
-          setTimeout(()=>{
-            try {
-              const fadeStart = music.volume;
-              const fadeSteps = 20;
-              let step = 0;
-              const fadeInterval = setInterval(()=>{
-                step++;
-                try { music.volume = Math.max(0, fadeStart * (1 - step/fadeSteps)); } catch(e){}
-                if(step >= fadeSteps){
-                  clearInterval(fadeInterval);
-                  try { music.pause(); } catch(e){}
-                  clearTimeout(safetyTimer);
-                  finish();
-                }
-              }, 50);
-            } catch(e) {
-              clearTimeout(safetyTimer);
-              finish();
-            }
-          }, 7000);
-        }).catch((err)=>{
-          // Autoplay blocked or other error - skip music entirely
-          console.warn('Intro music skipped:', err && err.message);
-          clearTimeout(safetyTimer);
-          finish();
-        });
-      } else {
-        // Browser too old or play() returned nothing - skip music
-        clearTimeout(safetyTimer);
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC){ clearTimeout(safety); finish(); return; }
+      const ctx = new AC();
+      if(ctx.state === 'suspended'){ ctx.resume().catch(()=>{}); }
+      const now = ctx.currentTime;
+      const master = ctx.createGain();
+      master.gain.value = 0.0001;
+      master.connect(ctx.destination);
+      // Fade in
+      master.gain.exponentialRampToValueAtTime(0.35, now + 0.15);
+      // Hold then fade out at end
+      master.gain.setValueAtTime(0.35, now + 3.0);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+
+      // News-style ascending three-note fanfare (C5, E5, G5) + bass pulse
+      const notes = [
+        { f: 523.25, t: 0.00, d: 0.55 },
+        { f: 659.25, t: 0.45, d: 0.55 },
+        { f: 783.99, t: 0.90, d: 1.40 }
+      ];
+      notes.forEach(n=>{
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = n.f;
+        g.gain.value = 0.0001;
+        g.gain.setValueAtTime(0.0001, now + n.t);
+        g.gain.exponentialRampToValueAtTime(0.8, now + n.t + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + n.t + n.d);
+        o.connect(g); g.connect(master);
+        o.start(now + n.t);
+        o.stop(now + n.t + n.d + 0.1);
+      });
+      // Low bass pulse for "breaking news" feel
+      const bass = ctx.createOscillator();
+      const bg = ctx.createGain();
+      bass.type = 'sine';
+      bass.frequency.value = 130.81; // C3
+      bg.gain.value = 0.0001;
+      bg.gain.setValueAtTime(0.0001, now);
+      bg.gain.exponentialRampToValueAtTime(0.5, now + 0.1);
+      bg.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+      bass.connect(bg); bg.connect(master);
+      bass.start(now);
+      bass.stop(now + 3.9);
+
+      // Resolve after the jingle (~4s)
+      setTimeout(()=>{
+        clearTimeout(safety);
+        try { ctx.close(); } catch(e){}
         finish();
-      }
-    } catch(e) {
+      }, 4000);
+    } catch(e){
+      clearTimeout(safety);
       finish();
     }
   });
@@ -1083,18 +1092,15 @@ function playStoryDetails(idx){
   if(!state.isPlaying) return;
   
   if(idx >= newsStories.length){
-    // Closing: anchor says farewell, then wait until next hour
+    // Closing: anchor says farewell, then restart immediately (keeps stream alive 24/7)
     setMode('intro');
     speak(getClosingScript(), ()=>{
       if(!state.isPlaying) return;
-      const waitMs = minutesUntilNextHour();
-      const waitMin = Math.round(waitMs / 60000);
-      showToast(`⏰ النشرة القادمة بعد ${waitMin} دقيقة`, 'ok', 4000);
-      setMode('idle');
-      // Wait until top of next hour, then restart
+      showToast('🔁 إعادة النشرة', 'ok', 2500);
+      // Short 3s gap then restart so YouTube never sees a long silence
       setTimeout(()=>{
         if(state.isPlaying) startBroadcast();
-      }, waitMs);
+      }, 3000);
     });
     return;
   }
@@ -1209,26 +1215,28 @@ displayStory(0);
       startBroadcast();
     }, 1500);
 
-    // Safety: if audio ever stalls for 60s, reload the page
+    // Safety: if audio ever stalls for a long time, reload the page.
+    // Only checks when actually in a speaking segment (not during music/intro).
     let lastTime = 0, stallCount = 0;
     setInterval(()=>{
-      if(state.isPlaying){
-        if(audioPlayer.currentTime === lastTime && !audioPlayer.paused){
+      if(state.isPlaying && audioPlayer.src && !audioPlayer.paused && audioPlayer.currentTime > 0){
+        if(audioPlayer.currentTime === lastTime){
           stallCount++;
-          if(stallCount > 6){ location.reload(); }
+          if(stallCount > 9){ location.reload(); }
         } else {
           stallCount = 0;
         }
         lastTime = audioPlayer.currentTime;
+      } else {
+        stallCount = 0;
       }
     }, 10000);
 
-    // Auto-restart broadcast if it ever stops
-    setInterval(()=>{
-      if(!state.isPlaying && isActivated){
-        startBroadcast();
-      }
-    }, 15000);
+    // NOTE: removed the aggressive auto-restart interval.
+    // It was calling startBroadcast() again while the intro music
+    // was still playing (state.isPlaying=true but audio not started yet),
+    // which caused the anchor to repeat "مرحبا" multiple times.
+    // The bulletin already loops itself via playStoryDetails() -> startBroadcast().
   }
 })();
 </script>
